@@ -16,7 +16,7 @@
 + 계산기록 저장 및 삭제
 + 단일연산만 가능(사칙연산, 연산순서 등 복합적으로 가기엔 쏟아야할 내용이 너무 많다. 코틀린을 익히는 단계이니 어느정도만..)
 
-### [2021-04-26]
+### [2021-04-26 Review]
 
 #### xml
 + TableLayout 에서 행과열  
@@ -29,6 +29,7 @@
   이경우 일반 Button의 레이아웃이 먹지 않거나 의도와 다르게 백그라운드 및 다크테마가 적용되는 경우가 많다.  
   이 때 위처럼 Button을 androidx.appcompat.widget.AppCompatButton 라고 명시해주면  
   Material Button과 헷갈리지 않아 레이아웃에 제대로 잘 적용된다.  
-+ ConstraintLayout 중첩과 Visibility 이용해 하나의 레이아웃에서 여러 레이아웃을 그림
++ ConstraintLayout 중첩과 Visibility + LayoutInflate 이용해 하나의 xml에서 여러 레이아웃을 그림  
+  LayoutInflate 시킬 다른 xml은 위의 TableLayout에 보여지게됨 
 
 
