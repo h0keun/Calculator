@@ -18,7 +18,7 @@
 
 ### [2021-04-26 Review]
 
-#### xml
+### xml
 + TableLayout 에서 행과열  
   : 행 = TableRow / 열 = TableRow안에 들어가는 객체들(Button 등)  
 + TableLayout 속성 중 android:shrinkColumns="*"  
@@ -32,4 +32,29 @@
 + ConstraintLayout 중첩과 Visibility + LayoutInflate 이용해 하나의 xml에서 여러 레이아웃을 그림  
   LayoutInflate 시킬 다른 xml은 위의 TableLayout에 보여지게됨 
 
+### Kotlin Class
++ xml에서 0~9까지 버튼역할은 동일하기 때문에 xml파일에서 android:onClick="buttonClicked" 부여하고  
+  MainActiviry.kt 에서 아래처럼 가능
+  ```KOTLIN
+  fun buttonClicked(v: View) {
+      when(v.id) {
+          R.id.button0 -> numberButtonClicked("0")
+          R.id.button1 -> numberButtonClicked("1")
+          ...
+          R.id.buttonPlus -> operatorButtonClicked("+")
+          R.id.buttonMinus -> operatorButtonClicked("-")
+          ...
+      }
+  }
+  
+  ...
+  
+  private fun numberButtonClicked(number: String) {...}
+  private fun operatorButtonClicked(operator: String) {...}
+  ``` 
++ Thread - RoomDB 쪽 한번더 보기📌📌📌
 
++ [.droplast](https://iosroid.tistory.com/92)
++ SpannableStringBuilder = 텍스트에 부분적으로 디자인 효과를 주기 위함 
+💡💡 collection 함수들 따로 정리하기
+ 
