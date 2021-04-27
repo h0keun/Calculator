@@ -55,8 +55,9 @@
   
 ### Room [📌](https://developer.android.com/training/data-storage/room/defining-data?hl=ko)
 1. build.gradle에 room 라이브러리 추가
-2. data class를 만든다  
-  - 보통 데이터 클래스 자체를 DB의 테이블(room의 데이터클래스)로 사용함 이를위해 @Entitiy 어노테이션을 추가한다. 또한 각각의 변수들도 어떤 이름으로 DB에 저장할지를 명시해준다. (@PrivaryKey / @ColumnInfo)
+2. data class를 만든다 (테이블 생성)  
+  - 보통 데이터 클래스 자체를 DB의 테이블(room의 데이터클래스)로 사용한다.  
+    이를위해 @Entitiy 어노테이션을 추가해주며, 또한 데이터 클래스 내의 변수들도 어떤 이름으로 DB에 저장할지를 명시해준다. (@PrivaryKey / @ColumnInfo)
   ```KOTLIN
   @Entity
   data class History(
@@ -66,7 +67,8 @@
   )
   ```
 3. DAO 인터페이스를 만든다
-  - 데이터를 오고가게 해주는 역할을 하는 인터페이스이다. @Dao 어노테이션을 추가해주며, 2.에 있는 data class의 Entitiy를 조회, 저장, 삭제등을 어떻게 할지 정의해준다.
+  - 데이터를 오고가게 해주는 역할을 하는 인터페이스이다. @Dao 어노테이션을 추가해주며,  
+    2.에 있는 data class의 Entitiy를 조회, 저장, 삭제등을 어떻게 할지 정의해준다.
   ```KOTLIN
   @Dao
   interface HistoryDao {
@@ -82,7 +84,7 @@
 
   }
   ```
-  - Entity 전부 가져오기(조회) : history 테이블에서 모든 엔티티들을 가져온다(조회한다)
+  - Entity 전부 조회하기 : history 테이블에서 모든 엔티티들을 가져온다(조회한다)
   ```KOTLIN
   @Query("SELECT * FROM history")
   fun getAll(): List<History>
@@ -97,7 +99,58 @@
   @Query("DELETE FROM hisory")
   fun deleteAll()
   ```
+  - 이 외에도 WHERE를 통해 조건에 부합하는 경우만 SELECT 하는 등 여러가지 쿼리문에 대해선 추가적인 학습이 필요하다.
 
+3. 데이터베이스 생성
+  - 추상클래스로 데이터베이스를 생성하고 RoomDatabase()를 상속한다.  
+    @Database에 사용할 테이블을 등록해주어야 하며, 버전을 작성해주야한다  
+    (앱 업데이트시 테이블 구조가 바뀔 수 있기 때문에 마이그레이션을 해주는 느낌)
+  ```KOTLIN
+  @Database(entities = [History::class], version = 1)
+  abstract class AppDatabase : RoomDatabase(){ 
+      abstract fun historyDao(): HistoryDao
+  }
+  ```
+4. MainActivity에서 데이터베이스 사용하기
+  ```KOTLIN
+  lateinit var db: AppDatabase  // db 선언
+  
+  db = Room.databaseBuilder(    // onCreate 시점에 db에 값 할당   
+      applicationContext,
+      AppDatabase::class.java,
+      name: "historyDB"
+  ).build()
+  ```
+5. 엑티비티에서 DB에 INSERT하거나 SELECT 하는등 DB에 관련된 과정은 메인쓰레드가아니라 새로운쓰레드에서 진행해야함
+  - DB에 계산기록 넣어주는 부분(insert)
+  ```KOTLIN
+  Thread(Runnable {
+     db.historyDao().insertHistory(History(null, expressionText, resultText))
+  }).start()
+  ```
+  - DB에 저장된 계산기록 조회(getAll())하여 뷰에 모든 기록 할당하기(LayoutInflater)
+  ```KOTLIN
+  Thread(Runnable {
+     db.historyDao().getAll().reversed().forEach {
+        runOnUiThread {
+           val historyView = LayoutInflater.from(this).inflate(R.layout.history_row, null, false)
+           historyView.findViewById<TextView>(R.id.expressionTextView).text = it.expression
+           historyView.findViewById<TextView>(R.id.resultTextView).text = "= ${it.result}"
+           historyLinearLayout.addView(historyView)
+        }
+     }
+
+  }).start()
+  ```
+  - DB에서 모든 기록 삭제하기
+  ```KOTLIN
+  Thread(Runnable {
+     db.historyDao().deleteAll()
+  }).start()
+  ```
+💡 테이블과 데이터베이스의 차이
+  : 간략하게 말하자면 데이터베이스는 데이터를 저장하는 저장소를 말하는 것이고, 테이블은 데이터베이스안에 실제 데이터가 저장되는 형태를 말한다. 즉 테이블은 파일에 데이터를 저장할 때 어떤 구조로 저장할지 결정하는 것이라 볼 수 있다.
+  
 + Thread - RoomDB 쪽 한번더 보기📌📌📌
 
 + [.droplast](https://iosroid.tistory.com/92)
