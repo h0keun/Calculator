@@ -52,6 +52,52 @@
   private fun numberButtonClicked(number: String) {...}
   private fun operatorButtonClicked(operator: String) {...}
   ``` 
+  
+### Room [📌](https://developer.android.com/training/data-storage/room/defining-data?hl=ko)
+1. build.gradle에 room 라이브러리 추가
+2. data class를 만든다  
+  - 보통 데이터 클래스 자체를 DB의 테이블(room의 데이터클래스)로 사용함 이를위해 @Entitiy 어노테이션을 추가한다. 또한 각각의 변수들도 어떤 이름으로 DB에 저장할지를 명시해준다. (@PrivaryKey / @ColumnInfo)
+  ```KOTLIN
+  @Entity
+  data class History(
+     @PrimaryKey val uid: Int?,
+     @ColumnInfo(name = "expression") val expression: String?,
+     @ColumnInfo(name = "result") val result: String?
+  )
+  ```
+3. DAO 인터페이스를 만든다
+  - 데이터를 오고가게 해주는 역할을 하는 인터페이스이다. @Dao 어노테이션을 추가해주며, 2.에 있는 data class의 Entitiy를 조회, 저장, 삭제등을 어떻게 할지 정의해준다.
+  ```KOTLIN
+  @Dao
+  interface HistoryDao {
+
+    @Query("SELECT * FROM history")
+    fun getAll(): List<History>
+
+    @Insert
+    fun insertHistory(history: History)
+
+    @Query("DELETE FROM history")
+    fun deleteAll()
+
+  }
+  ```
+  - Entity 전부 가져오기(조회) : history 테이블에서 모든 엔티티들을 가져온다(조회한다)
+  ```KOTLIN
+  @Query("SELECT * FROM history")
+  fun getAll(): List<History>
+  ```
+  - 저장
+  ```KOTLIN
+  @Insert
+  fun insertHistory(history: History)
+  ```
+  - 전부 삭제
+  ```KOTLIN
+  @Query("DELETE FROM hisory")
+  fun deleteAll()
+  ```
+
 + Thread - RoomDB 쪽 한번더 보기📌📌📌
 
 + [.droplast](https://iosroid.tistory.com/92)
