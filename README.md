@@ -1,4 +1,6 @@
-## Calculator
+```💡 FastCampus 강의 수강 및 정리```
+
+### Calculator
 
 #### UI
 + TableLayout
@@ -15,6 +17,8 @@
 + 일반적인 계산기 기능
 + 계산기록 저장 및 삭제
 + 단일연산만 가능(사칙연산, 연산순서 등 복합적으로 가기엔 쏟아야할 내용이 너무 많다. 코틀린을 익히는 단계이니 어느정도만..)
+
+<img src="https://user-images.githubusercontent.com/63087903/119833170-d86d1280-bf39-11eb-8b39-9355821f49da.jpg" width="200" height="430"> <img src="https://user-images.githubusercontent.com/63087903/119833184-da36d600-bf39-11eb-9ef5-a446b3eeaccc.jpg" width="200" height="430">
 
 ### [2021-04-26 Review]
 
