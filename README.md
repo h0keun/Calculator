@@ -21,6 +21,7 @@
 <img src="https://user-images.githubusercontent.com/63087903/119833170-d86d1280-bf39-11eb-8b39-9355821f49da.jpg" width="200" height="430"> <img src="https://user-images.githubusercontent.com/63087903/119833184-da36d600-bf39-11eb-9ef5-a446b3eeaccc.jpg" width="200" height="430">
 
 ### [2021-04-26 Review]
+### [2021-07-09 ]
 
 ### xml
 + TableLayout 에서 행과열  
@@ -159,5 +160,3 @@
 
 + [.droplast](https://iosroid.tistory.com/92)
 + SpannableStringBuilder = 텍스트에 부분적으로 디자인 효과를 주기 위함 
-💡💡 collection 함수들 따로 정리하기
- 
