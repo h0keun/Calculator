@@ -157,6 +157,9 @@
   * DB에서 모든 기록을 가져와서 뷰에 모든 기록을 할당하는 과정이다.
   * inflate 부분에서 null 과 false의 자리는 각각 root와 attachedRoot 자리인데,
   * 나중에 addView를 통해 붙여줄것이기 때문에 위와같이 작성하였다.
+  * it.expression 과 it.result 는 db.historyDao().getAll().reversed().forEach 
+    가 받는 it = data class 인 history.kt 이다.
+    (history.kt 는 roomDB 를 사용하기위한 테이블로 @Entity 를 달아주었으며 expression과 result 는 @ColumnInfo)
   ```
 
 🥕 why?? DB값을 불러들이는데 쓰레드를 사용하는 것일까?  
@@ -166,6 +169,9 @@
 + [안드로이드 Handler 알고 쓰자](https://brunch.co.kr/@mystoryg/84)
 + [runOnUiThread](https://itmining.tistory.com/6)
 + [자주 애용하는 사이트!!](https://recipes4dev.tistory.com/143)
+
+
+
 
 ### 💡 Room [📌](https://developer.android.com/training/data-storage/room/defining-data?hl=ko)
 1. build.gradle에 room 라이브러리 추가
@@ -265,6 +271,52 @@
 💡 테이블과 데이터베이스의 차이
   : 간략하게 말하자면 데이터베이스는 데이터를 저장하는 저장소를 말하는 것이고, 테이블은 데이터베이스안에 실제 데이터가 저장되는 형태를 말한다. 즉 테이블은 파일에 데이터를 저장할 때 어떤 구조로 저장할지 결정하는 것이라 볼 수 있다.
   
+💡 확장함수(Extension Function)  
+  : 확장함수는 클래스의 멤버 메서드처럼 호출되지만 클래스 밖에서 호출되는 함수이다.  
+    마치 기본 클래스에 추가적으로 함수를 넣는 기능을 한다.  
+    단, receiver object의 private 나 protected 함수에는 접근이 불가능!
+    해당 내용에 대해서 다른개발자 분께서 잘 설명해주신 내용[📌](https://choheeis.github.io/newblog//articles/2020-12/kotlin-extension-function)
+```KOTLIN
+* 확장함수를 사용하여 String isNumber 구현 
+
+class MainActivity : AppCompatActivity() {
+...
+}
+
+...
+
+fun String.isNumber(): Boolean {
+    return try {
+        this.toBigInteger()  // this는 생략 가능하며, toBigInteger()는 무한에 가까운 자료형이다.
+        true
+    } catch (e: NumberFormatException) {
+        false
+    }
+
+}
+
+본 프로젝트에서 확장함수의 사용모습은 위와 같다. 
+말 그대로 이미 정의된 클래스에서 확장하여 우리가 필요로 하는 기능을 넣어줄 때 사용하는 기능으로
+여기서는 입력받은 숫자 문자열이 숫자로 변환이 가능하지 않을 때 예외처리하여 false를 반환하면서
+숫자가 아닌 것을 확인할 수 있도록 한 모습이다.
+```
+
 💡 쓰레드보단 코루틴!  
-💡 [.droplast](https://iosroid.tistory.com/92)  
 💡 SpannableStringBuilder = 텍스트에 부분적으로 디자인 효과를 주기 위함 
+```KOTLIN
+본 프로젝트에서는 + - 등의 연산자를 입력할 때에 숫자와 구분짓기 위해 Green color 를 연산자에 적용하였다.
+
+...
+
+val ssb = SpannableStringBuilder(expressionTextView.text)
+ssb.setSpan(
+    ForegroundColorSpan(getColor(R.color.green)),
+    expressionTextView.text.length - 1,
+    expressionTextView.text.length,
+    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+)
+
+expressionTextView.text = ssb
+
+...
+```
