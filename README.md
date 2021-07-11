@@ -130,11 +130,44 @@
     이 부분에 대해서 정리하자면 나열해야할 코드들이 너무 방대하기 때문에 
     프로젝트 소스코드를 따로 참조하는 것이 좋을것 같다. 
   ```
-+ LayoutInflate
++ LayoutInflate / runOnUiThread
+  : 계산기록은 LayoutInflate를 통해 화면에 보여지게된다.  
+    시계모양의 버튼을 누려면 history_row.xml에 정의한데로 TextView 2개에 각각 연산과정과 연산결과를 담아  
+    ScrollView 내부의 LinearLayout에 보여지게 된다. 이 때 계산기록들은 가장 최근기록이 가장 위에 나오게끔 reversed() 된 형태로 보여지게 되며,  
+    이 과정에서 레이아웃이 roomDB의 내용을 가지고와 즉각적으로 화면에 보여지는 것 이기 때문에 runOnUiThread를 함께 사용하게 된다.
+  ```KOTLIN
+  fun historyButtonClicked(v: View) {
+      historyLayout.isVisible = true
+      historyLinearLayout.removeAllViews() 
 
-#### 💡 본 프로젝트에서 가장 핵심이라고 생각하는 부분은 RoomDB 에대한 부분이 아닐까 생각한다.   
+      Thread(Runnable {
+          db.historyDao().getAll().reversed().forEach {
+              runOnUiThread {
+                  val historyView = LayoutInflater.from(this).inflate(R.layout.history_row, null, false)
+                  historyView.findViewById<TextView>(R.id.expressionTextView).text = it.expression
+                  historyView.findViewById<TextView>(R.id.resultTextView).text = "= ${it.result}"
+
+                  historyLinearLayout.addView(historyView)
+              }
+          }
+
+      }).start()
+  }
   
-### Room [📌](https://developer.android.com/training/data-storage/room/defining-data?hl=ko)
+  * DB에서 모든 기록을 가져와서 뷰에 모든 기록을 할당하는 과정이다.
+  * inflate 부분에서 null 과 false의 자리는 각각 root와 attachedRoot 자리인데,
+  * 나중에 addView를 통해 붙여줄것이기 때문에 위와같이 작성하였다.
+  ```
+
+🥕 why?? DB값을 불러들이는데 쓰레드를 사용하는 것일까?  
+몇몇 링크에 좋게 설명을 해주고 있어서 그 링크들을 첨부한다.  
++ [안드로이드에서 쓰레드란](https://salix97.tistory.com/79)
++ [핸들러, 스레드, 병렬처리, 동기화가 왜 필요할까](https://ebbnflow.tistory.com/189)
++ [안드로이드 Handler 알고 쓰자](https://brunch.co.kr/@mystoryg/84)
++ [runOnUiThread](https://itmining.tistory.com/6)
++ [자주 애용하는 사이트!!](https://recipes4dev.tistory.com/143)
+
+### 💡 Room [📌](https://developer.android.com/training/data-storage/room/defining-data?hl=ko)
 1. build.gradle에 room 라이브러리 추가
 2. data class를 만든다 (테이블 생성)  
   - 보통 데이터 클래스 자체를 DB의 테이블(room의 데이터클래스)로 사용한다.  
@@ -232,7 +265,6 @@
 💡 테이블과 데이터베이스의 차이
   : 간략하게 말하자면 데이터베이스는 데이터를 저장하는 저장소를 말하는 것이고, 테이블은 데이터베이스안에 실제 데이터가 저장되는 형태를 말한다. 즉 테이블은 파일에 데이터를 저장할 때 어떤 구조로 저장할지 결정하는 것이라 볼 수 있다.
   
-+ Thread - RoomDB 쪽 한번더 보기📌📌📌
-
-+ [.droplast](https://iosroid.tistory.com/92)
-+ SpannableStringBuilder = 텍스트에 부분적으로 디자인 효과를 주기 위함 
+💡 쓰레드보단 코루틴!  
+💡 [.droplast](https://iosroid.tistory.com/92)  
+💡 SpannableStringBuilder = 텍스트에 부분적으로 디자인 효과를 주기 위함 
