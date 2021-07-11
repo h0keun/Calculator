@@ -105,10 +105,10 @@
   ```
 
 ### Kotlin Class
-+ MainActivity.kt
++ MainActivity.kt  
   : xml에서 0~9까지 숫자버튼과 +,- 등의 연산버튼은 그 역할이 계산을 위한 수식으로 사용된다는 점이 동일하기 때문에  
   xml파일에서 onClick 속성으로 android:onClick="buttonClicked" 부여하고,  
-  when 문과 람다식을 통해 각 버튼에대한 함수 호출을 하는 방식으로 다음과 같은 표현이 가능하다.
+  when 문과 람다식을 통해 각 버튼에대한 함수 호출을 하는 방식으로 다음과 같은 표현이 가능하다.  
   ```KOTLIN
   fun buttonClicked(v: View) {
       when(v.id) {
@@ -130,7 +130,7 @@
     이 부분에 대해서 정리하자면 나열해야할 코드들이 너무 방대하기 때문에 
     프로젝트 소스코드를 따로 참조하는 것이 좋을것 같다. 
   ```
-+ LayoutInflate / runOnUiThread
++ LayoutInflate / runOnUiThread  
   : 계산기록은 LayoutInflate를 통해 화면에 보여지게된다.  
     시계모양의 버튼을 누려면 history_row.xml에 정의한데로 TextView 2개에 각각 연산과정과 연산결과를 담아  
     ScrollView 내부의 LinearLayout에 보여지게 된다. 이 때 계산기록들은 가장 최근기록이 가장 위에 나오게끔 reversed() 된 형태로 보여지게 되며,  
@@ -174,7 +174,37 @@
 
 
 ### 💡 Room [📌](https://developer.android.com/training/data-storage/room/defining-data?hl=ko)
-1. build.gradle에 room 라이브러리 추가
+#### 🥕 Room 이란??
+```KOTLIN
+공식문서에 따르면, Room은 SQLite를 추상화하여 제공하기 때문에 
+SQLite에서 지원하는 기능들을 전부 활용하면서 보다 쉬운 데이터 베이스 사용이 가능하다고 한다.
+
+* 상당한 양의 구조화된 데이터를 처리하는 앱은 데이터를 로컬로 유지하여 대단한 이점을 얻을 수 있습니다. 
+가장 일반적인 사용 사례는 관련 데이터를 캐싱하는 것입니다. 
+이런 방식으로 기기가 네트워크에 액세스할 수 없을 때 오프라인 상태인 동안에도 사용자가 여전히 콘텐츠를 탐색할 수 있습니다. 
+나중에 기기가 다시 온라인 상태가 되면 사용자가 시작한 콘텐츠 변경사항이 서버에 동기화됩니다. 
+Room은 이러한 문제를 자동으로 처리하므로 SQLite 대신 Room을 사용할 것을 적극적으로 권장합니다.
+```
+#### 🥕 Room에는 세 가지 주요 구성요소가 있다. (데이터베이스 / 항목 / DAO)  
+```KOTLIN
+* 데이터베이스 : 데이터베이스 홀더를 포함하며 앱의 지속적인 관계형 데이터의 기본 연결을 위한 기본 엑세스 포인트 역할을 한다.
+  
+  @Database 로 주석이 지정된 클래스는 다음 조건을 충족해야 한다.
+    1. RoomDatabase를 확장하는 '추상 클래스' 여야 한다.
+    2. 주석 내에 데이터베이스와 연결된 항목의 목록을 포함해야 한다.
+    3. 인수가 0개이며 @Dao 로 주석이 지정된 클래스를 반환하는 추상 메서드를 포함해야 한다.
+  런타임 시 Room.databaseBuilder() 또는 Room.inMemoryDatabaseBuilder()를 호출하여 Database 인스턴스를 가져올 수 있다.
+  
+* 항목 : 데이터베이스 내의 테이블을 나타낸다.
+
+* DAO : 데이터베이스에 액세스하는 데 사용되는 메서드가 포함되어 있다.
+  
+앱은 Room 데이터베이스를 사용하여 데이터베이스와 연결된 데이터 액세스 개체 또는 DAO를 가져온다. 
+그런 다음 앱은 각 DAO를 사용하여 데이터베이스에서 항목을 가져오고 항목의 변경사항을 다시 데이터베이스에 저장한다. 
+마지막으로 앱은 항목을 사용하여 데이터베이스 내의 테이블 열에 해당하는 값을 가져오고 설정한다.
+```
+#### 🥕 어떻게 사용하는지 본 프로젝트를 통해 아라보자
+1. build.gradle에 room 라이브러리 추가 
 2. data class를 만든다 (테이블 생성)  
   - 보통 데이터 클래스 자체를 DB의 테이블(room의 데이터클래스)로 사용한다.  
     이를위해 @Entitiy 어노테이션을 추가해주며, 또한 데이터 클래스 내의 변수들도 어떤 이름으로 DB에 저장할지를 명시해준다. (@PrivaryKey / @ColumnInfo)
@@ -221,7 +251,7 @@
   ```
   - 이 외에도 WHERE를 통해 조건에 부합하는 경우만 SELECT 하는 등 여러가지 쿼리문에 대해선 추가적인 학습이 필요하다.
 
-3. 데이터베이스 생성
+4. 데이터베이스 생성
   - 추상클래스로 데이터베이스를 생성하고 RoomDatabase()를 상속한다.  
     @Database에 사용할 테이블을 등록해주어야 하며, 버전을 작성해주야한다  
     (앱 업데이트시 테이블 구조가 바뀔 수 있기 때문에 마이그레이션을 해주는 느낌)
@@ -231,17 +261,24 @@
       abstract fun historyDao(): HistoryDao
   }
   ```
-4. MainActivity에서 데이터베이스 사용하기
+5. MainActivity에서 생성한 데이터베이스 인스턴스 가져오기(사용하기)
   ```KOTLIN
-  lateinit var db: AppDatabase  // db 선언
+  * lateinit var db: AppDatabase  // db를 늦은 초기화로 먼저 선언하면 아래 val 제거!
   
-  db = Room.databaseBuilder(    // onCreate 시점에 db에 값 할당   
+  val db = Room.databaseBuilder(    // onCreate 시점에 db에 값 할당   
       applicationContext,
-      AppDatabase::class.java,
-      name: "historyDB"
+      AppDatabase::class.java, "historyDB"
   ).build()
+  
+  * 참고 
+  앱이 단일 프로세스에서 실행되면 AppDatabase 객체를 인스턴스화할 때 싱글톤 디자인 패턴을 따라야 한다. 
+  각 RoomDatabase 인스턴스는 리소스를 상당히 많이 소비한다. 
+  그리고 단일 프로세스 내에서 여러 인스턴스에 액세스할 필요가 거의 없다.
+  앱이 여러 프로세스에서 실행되면 데이터베이스 빌더 호출에 enableMultiInstanceInvalidation()을 포함한다. 
+  이렇게 하면 각 프로세스에 AppDatabase 인스턴스가 있을 때 한 프로세스에서 공유 데이터베이스 파일을 무효화할 수 있으며 
+  이 무효화는 다른 프로세스 내의 AppDatabase 인스턴스로 자동 전파된다.
   ```
-5. 엑티비티에서 DB에 INSERT하거나 SELECT 하는등 DB에 관련된 과정은 메인쓰레드가아니라 새로운쓰레드에서 진행해야함
+6. 엑티비티에서 DB에 INSERT하거나 SELECT 하는등 DB에 관련된 과정은 메인쓰레드가아니라 새로운쓰레드에서 진행해야함
   - DB에 계산기록 넣어주는 부분(insert)
   ```KOTLIN
   Thread(Runnable {
