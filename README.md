@@ -24,18 +24,63 @@
 ### [2021-07-09 ]
 
 ### xml
++ activity_main.xml - constraintlayout 중첩으로 history_raw.xml 을 inflate 함
+  ```KOTLIN
+  * 계산기 키패드 영역(TableLayout)과 현재입력중인 계산 및 결과가 보이는 영역(View)
+    두 영역이 화면을 세로기준 1:1.5 크기로 나누어 가진다.
+    
+    app:layout_constraintVertical_weight="1" >> View 영역
+    app:layout_constraintVertical_weight="1.5" >> TableLayout 영역
+    
+    이때, TableLayout 영역은 그동안의 계산기록을 보여주는 history_row가 보여질 자리이기도 하다.
+    때문에 TableLayout 영역크기만큼 historyLayout 크기를 지정해주고, visibility를 통해 초기에는 안보였다가 계산기록확인을 위한 버튼클릭시 키패드 영역을 가리고 visible 되게 하였다.
+    app:layout_constraintTop_toTopOf="@id/keypadTableLayout" // 키패드와 동일사이즈
+    android:visibility="gone" // 초기에는 화면에 보이지 않음
+    
+  * 위에서 언급한 historyLayout은 ConstraintLayout으로 내부에 ScrollView와 LinearLayout을 포함하고 있는데,
+    이 LinearLayout이 바로 그동안의 계산기록(history_row.xml) 이 보여지는 자리이다.
+    ConstraintLayout 중첩과 Visibility + LayoutInflate 이용해 하나의 xml에서 여러 레이아웃을 그리는 것이 가능하다. 
+  ```
 + TableLayout 에서 행과열  
-  : 행 = TableRow / 열 = TableRow안에 들어가는 객체들(Button 등)  
-+ TableLayout 속성 중 android:shrinkColumns="*"  
-  : 모든 열을 TableLayout 너비에 맞게 자동으로 줄여줌
-+ <androidx.appcompat.widget.AppCompatButton/>
-  : 계산기 버튼의 백그라운드 색상, 눌림효과 등 res/drawable 폴더에서 받아오기위해 (ripple effect)  
-  그냥 Button으로하면 색상적용안됨 why?? style에 테마를 MaterialComponents로 사용하는 경우가 많은데  
-  이경우 일반 Button의 레이아웃이 먹지 않거나 의도와 다르게 백그라운드 및 다크테마가 적용되는 경우가 많다.  
-  이 때 위처럼 Button을 androidx.appcompat.widget.AppCompatButton 라고 명시해주면  
-  Material Button과 헷갈리지 않아 레이아웃에 제대로 잘 적용된다.  
-+ ConstraintLayout 중첩과 Visibility + LayoutInflate 이용해 하나의 xml에서 여러 레이아웃을 그림  
-  LayoutInflate 시킬 다른 xml은 위의 TableLayout에 보여지게됨 
+  ```KOTLIN
+  <TableLayout
+    ... >
+    <TableRow android:layout_weight="1" >
+      <Button/>
+      <Button/>
+      ...
+      <Button/>
+    </TableRow>
+    
+    <TableRow android:layout_weight="1" >
+      <Button/>
+      <Button/>
+      ...
+      <Button/>
+    </TableRow>
+    ...
+  </TableLayout>  
+  ```
+  TableLayout은 위의 형태를 가지며, 행 = TableRow / 열 = TableRow 안에 들어가는 객체들(Button 등) 이다.  
+  달리 말하자면 TableRow의 수는 행의 갯수이고 그안에 들어가있는 Button의 수는 열의 갯수 라고 보면 될거같다.
+  
++ TableLayout 내부에 적용한 속성들
+  ```KOTLIN
+  * TableLayout 속성 중 android:shrinkColumns="*"  
+    : 모든 열을 TableLayout 너비에 맞게 자동으로 줄여줌
+    
+  * <androidx.appcompat.widget.AppCompatButton/>
+    : 계산기 버튼의 백그라운드 색상, 눌림효과 등 res/drawable 폴더에서 받아오기위해 (ripple effect)
+    
+  * 버튼의 width = "wrap_content", height = "match_parent" 
+    : 이렇게 두어야 TableLayout 안에 버튼들이 자동으로 크기조절되어 들어가게된다.
+    
+  * why? AppCompatButton??
+    : 일반적으로 style에 테마를 MaterialComponents로 사용하는 경우가 많다. 
+      하지만 이 상태에선 일반 Button의 레이아웃이 먹지 않거나 의도와 다르게 백그라운드 및 다크테마가 적용되는 경우가 많다.
+      이를 해결하기위해 Button을 androidx.appcompat.widget.AppCompatButton 라고 명시해주면
+      Material Button과 헷갈리지 않아 의도한 버튼의 모양으로 레이아웃에 제대로 잘 적용된다.
+  ``` 
 
 ### Kotlin Class
 + xml에서 0~9까지 버튼역할은 동일하기 때문에 xml파일에서 android:onClick="buttonClicked" 부여하고  
