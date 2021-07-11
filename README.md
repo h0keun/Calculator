@@ -33,7 +33,9 @@
     app:layout_constraintVertical_weight="1.5" >> TableLayout 영역
     
     이때, TableLayout 영역은 그동안의 계산기록을 보여주는 history_row가 보여질 자리이기도 하다.
-    때문에 TableLayout 영역크기만큼 historyLayout 크기를 지정해주고, visibility를 통해 초기에는 안보였다가 계산기록확인을 위한 버튼클릭시 키패드 영역을 가리고 visible 되게 하였다.
+    때문에 TableLayout 영역크기만큼 historyLayout 크기를 지정해주고, 
+    visibility를 통해 초기에는 안보였다가 계산기록확인을 위한 버튼클릭시 키패드 영역을 가리고 visible 되게 하였다.
+    
     app:layout_constraintTop_toTopOf="@id/keypadTableLayout" // 키패드와 동일사이즈
     android:visibility="gone" // 초기에는 화면에 보이지 않음
     
@@ -60,10 +62,10 @@
     </TableRow>
     ...
   </TableLayout>  
-  ```
-  TableLayout은 위의 형태를 가지며, 행 = TableRow / 열 = TableRow 안에 들어가는 객체들(Button 등) 이다.  
-  달리 말하자면 TableRow의 수는 행의 갯수이고 그안에 들어가있는 Button의 수는 열의 갯수 라고 보면 될거같다.
   
+  * TableLayout은 위의 형태를 가지며, 행 = TableRow / 열 = TableRow 안에 들어가는 객체들(Button 등) 이다.  
+    달리 말하자면 TableRow의 수는 행의 갯수이고 그안에 들어가있는 Button의 수는 열의 갯수 라고 보면 될거같다.
+  ```
 + TableLayout 내부에 적용한 속성들
   ```KOTLIN
   * TableLayout 속성 중 android:shrinkColumns="*"  
@@ -80,11 +82,33 @@
       하지만 이 상태에선 일반 Button의 레이아웃이 먹지 않거나 의도와 다르게 백그라운드 및 다크테마가 적용되는 경우가 많다.
       이를 해결하기위해 Button을 androidx.appcompat.widget.AppCompatButton 라고 명시해주면
       Material Button과 헷갈리지 않아 의도한 버튼의 모양으로 레이아웃에 제대로 잘 적용된다.
-  ``` 
+  ```
++ Button 모양을 커스텀하고 ripple 효과 부여하기
+  ```KOTLIN
+  <?xml version="1.0" encoding="utf-8"?>
+  <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+      android:color="@color/buttonPressGray">             // 버튼 클릭시 버튼의 색상 
+
+      <item android:id="@android:id/background">
+          <shape android:shape="rectangle">               // 버튼의 형태 : 사각형
+              <solid android:color="@color/buttonGray"/>  // 기존 버튼의 색상
+              <corners android:radius="100dp"/>           // 사각형버튼의 코너를 깎음
+              <stroke
+                  android:width="1dp"                     // 버튼 테두리 색상
+                  android:color="@color/buttonPressGray"/>
+          </shape>
+      </item>
+  </ripple>
+  
+  * ripple 효과란 눌림효과를 말한다. 위에보면 item id를 background 로 지정해 주었는데, Ctrl + 좌클릭 으로 ids.xml을 타고 들어가면
+    background 외에도 checkbox, hint, icon, input, copy 등 무수히 많은 <resources> 들이 명시되어있다. 
+  ```
 
 ### Kotlin Class
-+ xml에서 0~9까지 버튼역할은 동일하기 때문에 xml파일에서 android:onClick="buttonClicked" 부여하고  
-  MainActiviry.kt 에서 아래처럼 가능
++ MainActivity.kt
+  : xml에서 0~9까지 숫자버튼과 +,- 등의 연산버튼은 그 역할이 계산을 위한 수식으로 사용된다는 점이 동일하기 때문에  
+  xml파일에서 onClick 속성으로 android:onClick="buttonClicked" 부여하고,  
+  when 문과 람다식을 통해 각 버튼에대한 함수 호출을 하는 방식으로 다음과 같은 표현이 가능하다.
   ```KOTLIN
   fun buttonClicked(v: View) {
       when(v.id) {
@@ -101,7 +125,14 @@
   
   private fun numberButtonClicked(number: String) {...}
   private fun operatorButtonClicked(operator: String) {...}
-  ``` 
+  
+  * 흐름자체는 어렵지 않으나 계산하는 과정 자체는 생각보다 고려해야할 점이 많고 까다롭다.
+    이 부분에 대해서 정리하자면 나열해야할 코드들이 너무 방대하기 때문에 
+    프로젝트 소스코드를 따로 참조하는 것이 좋을것 같다. 
+  ```
++ LayoutInflate
+
+#### 💡 본 프로젝트에서 가장 핵심이라고 생각하는 부분은 RoomDB 에대한 부분이 아닐까 생각한다.   
   
 ### Room [📌](https://developer.android.com/training/data-storage/room/defining-data?hl=ko)
 1. build.gradle에 room 라이브러리 추가
