@@ -263,7 +263,7 @@ Room은 이러한 문제를 자동으로 처리하므로 SQLite 대신 Room을 �
   ```
 5. MainActivity에서 생성한 데이터베이스 인스턴스 가져오기(사용하기)
   ```KOTLIN
-  * lateinit var db: AppDatabase  // db를 늦은 초기화로 먼저 선언하면 아래 val 제거!
+  * lateinit var db: AppDatabase  // db를 늦은 초기화로 전역변수로서 먼저 선언하면 아래 val 제거!
   
   val db = Room.databaseBuilder(    // onCreate 시점에 db에 값 할당   
       applicationContext,
@@ -281,12 +281,19 @@ Room은 이러한 문제를 자동으로 처리하므로 SQLite 대신 Room을 �
 6. 엑티비티에서 DB에 INSERT하거나 SELECT 하는등 DB에 관련된 과정은 메인쓰레드가아니라 새로운쓰레드에서 진행해야함
   - DB에 계산기록 넣어주는 부분(insert)
   ```KOTLIN
+  * resultButtonClicked 시 실행
+  
   Thread(Runnable {
      db.historyDao().insertHistory(History(null, expressionText, resultText))
   }).start()
+  
+  // DB 입출력 과정은 메인쓰레드 외 추가 쓰레드에서 해야한다. 
+  // 위 코드에서 null 은 uid 에 해당하는데 null로 주어도 기본키라서 자동으로 +1 되서 들어간다.
   ```
   - DB에 저장된 계산기록 조회(getAll())하여 뷰에 모든 기록 할당하기(LayoutInflater)
   ```KOTLIN
+  * historyButtonClicked 시 실행
+  
   Thread(Runnable {
      db.historyDao().getAll().reversed().forEach {
         runOnUiThread {
@@ -298,6 +305,9 @@ Room은 이러한 문제를 자동으로 처리하므로 SQLite 대신 Room을 �
      }
 
   }).start()
+  
+  // 뷰를 생성하여 넣어주는데, 레이아웃 인플레이터를 사용한다.
+  // UI 쓰레드를 열어 핸들러에 포스팅될 내용을 작성하게된다.
   ```
   - DB에서 모든 기록 삭제하기
   ```KOTLIN
